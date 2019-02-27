@@ -3,15 +3,19 @@ import './App.css';
 import { InputGroup, Input, Button, ListGroup, ListGroupItem } from 'reactstrap';
 
 class App extends Component {
-  state = {
-    results: [],
-    validForm: true,
-    upperLimit: 3
-  }
+  constructor() {
+    super();
 
-  // componentDidMount() {
-  //   this.fetchData();
-  // }
+    this.state = {
+      results: [],
+      validForm: true,
+      upperLimit: 3
+    }
+
+    this.fetchData = this.fetchData.bind(this);
+    this.clearResults = this.clearResults.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+  }
 
   handleUserInput(e) {
     this.setState({
@@ -68,9 +72,9 @@ class App extends Component {
         <InputGroup>
           <Input invalid={!this.state.validForm} type="number" placeholder="Enter a positive integer"
                  value={this.state.upperLimit} onChange={(event) => this.handleUserInput(event)}
-                 onKeyPress={this.handleKeyPress.bind(this)} />
-          <Button color="primary" disabled={!this.state.validForm} onClick={this.fetchData.bind(this)}>Find Medians</Button>
-          <Button color="secondary" onClick={this.clearResults.bind(this)}>Clear</Button>
+                 onKeyPress={this.handleKeyPress} />
+          <Button color="primary" disabled={!this.state.validForm} onClick={this.fetchData}>Find Medians</Button>
+          <Button color="secondary" onClick={this.clearResults}>Clear</Button>
         </InputGroup>
         { this.renderResultsList() }
       </div>
