@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import './App.css';
-import { InputGroup, Input, Button, Alert } from 'reactstrap';
+import { InputGroup, Input, Button, ListGroup, ListGroupItem } from 'reactstrap';
 
 class App extends Component {
   state = {
-    medianResult: [],
+    results: [],
     validForm: true,
     upperLimit: 3
   }
 
-  componentDidMount() {
-    this.fetchData();
-  }
+  // componentDidMount() {
+  //   this.fetchData();
+  // }
 
   handleUserInput(e) {
     this.setState({
@@ -20,34 +20,59 @@ class App extends Component {
     });
   }
 
-  fetchData() {
-    fetch('/prime?n=' + this.state.upperLimit)
-      .then(res => res.json())
-      .then(medianResult => this.setState({ medianResult }));
+  handleKeyPress(e) {
+    if (e.key === 'Enter' && this.state.validForm) this.fetchData();
   }
 
-  getOutputString() {
-    var results = this.state.medianResult;
-    if (results.length === 0) {
-      return 'There are no prime numbers less than ' + this.state.upperLimit;
+  fetchData() {
+    var upperLimit = this.state.upperLimit;
+
+    fetch('/prime?n=' + upperLimit)
+      .then(res => res.json())
+      .then(medians => this.setState(prevState => ({
+        results: [{ upperLimit: upperLimit, medians: medians }, ...prevState.results]
+      })));
+  }
+
+  clearResults() {
+    this.setState({results: []});
+  }
+
+  getOutputString(result) {
+    if (result.medians.length === 0) {
+      return `There are no prime numbers less than ${result.upperLimit}`;
     }
-    if (results.length === 1) {
-      return results[0] + ' is the median prime number'
+    if (result.medians.length === 1) {
+      return `${result.medians[0]} is the median for a set of prime numbers < ${result.upperLimit}`;
     }
-    return results[0] + ' and ' + results[1] + ' are the median prime numbers'
+    return `${result.medians[0]} and ${result.medians[1]} are the medians for a set of prime numbers < ${result.upperLimit}`;
+  }
+
+  renderResultsList(props) {
+    const results = this.state.results;
+    const listGroupItems = results.map((result, index) =>
+      <ListGroupItem key={index}>
+        {this.getOutputString(result)}
+      </ListGroupItem>
+    );
+    return (
+      <ListGroup>{listGroupItems}</ListGroup>
+    );
   }
 
   render() {
     return (
       <div className="App">
+        <h1>Median Finder</h1>
+        <p>Gets the median prime number(s) of the set of prime numbers less than n</p>
         <InputGroup>
-          <Input invalid={!this.state.validForm} type="number" placeholder="Enter a number"
-                 value={this.state.upperLimit} onChange={(event) => this.handleUserInput(event)} />
-          <Button color="primary" disabled={!this.state.validForm} onClick={this.fetchData.bind(this)}>Get Median Prime Number(s)</Button>
+          <Input invalid={!this.state.validForm} type="number" placeholder="Enter a positive integer"
+                 value={this.state.upperLimit} onChange={(event) => this.handleUserInput(event)}
+                 onKeyPress={this.handleKeyPress.bind(this)} />
+          <Button color="primary" disabled={!this.state.validForm} onClick={this.fetchData.bind(this)}>Find Medians</Button>
+          <Button color="secondary" onClick={this.clearResults.bind(this)}>Clear</Button>
         </InputGroup>
-        <Alert>
-          { this.getOutputString() }
-        </Alert>
+        { this.renderResultsList() }
       </div>
     );
   }
