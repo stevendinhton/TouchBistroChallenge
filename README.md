@@ -6,7 +6,7 @@ The react frontend makes requests to the express server.
 
 ### Running Express Backend and React Frontend 
 
-Run ```npm start``` in both the `/frontend` and `/backend` directories.
+Run ```npm start``` both for the `/frontend` and `/backend` directories.
 
 ### Running the tests for frontend and backend
 
